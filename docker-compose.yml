@@ -1,0 +1,71 @@
+version: '2'
+
+services:
+  # ElasticSearch master server
+  elasticsearch-master:
+    tty: true
+    build:
+      context: elasticsearch/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    volumes:
+      - ./elasticsearch/config/elasticsearch_master.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+    networks:
+      elk:
+        ipv4_address: 10.20.30.2
+    stdin_open: true
+  
+  # ElasticSearch node 1 server
+  elasticsearch-node-1:
+    tty: true
+    build:
+      context: elasticsearch/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    volumes:
+      - ./elasticsearch/config/elasticsearch_node_1.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+    ports:
+      - "9201:9200"
+      - "9301:9300"
+    environment:
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+    networks:
+      elk:
+        ipv4_address: 10.20.30.3
+    stdin_open: true
+
+  # ElasticSearch node 2 server
+  elasticsearch-node-2:
+    tty: true
+    build:
+      context: elasticsearch/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    volumes:
+      - ./elasticsearch/config/elasticsearch_node_2.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+    ports:
+      - "9202:9200"
+      - "9302:9300"
+    environment:
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+    networks:
+      elk:
+        ipv4_address: 10.20.30.4
+    stdin_open: true
+
+networks:
+  elk:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.20.30.0/24
+          gateway: 10.20.30.1
+#           aux_addresses: 
+#             elasticsearch-master: 10.20.30.2
+#             elasticsearch-node-1: 10.20.30.3
+#             elasticsearch-node-2: 10.20.30.4
