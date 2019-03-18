@@ -6,13 +6,13 @@ node.data: true
 
 node.name: "node-3"
 
-http.port: 9202
+# http.port: 9202
+#
+# transport.tcp.port: 9302
 
-transport.tcp.port: 9302
+discovery.zen.ping.unicast.hosts: [elasticsearch-1, elasticsearch-2, elasticsearch-3]
 
-discovery.zen.ping.unicast.hosts: ["node-1:9300", "node-2:9301", "node-3:9302"]
-
-network.publish_host: node-1
+network.publish_host: elasticsearch-3
 
 network.bind_host: "0.0.0.0"
 

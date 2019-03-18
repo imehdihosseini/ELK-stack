@@ -30,10 +30,10 @@ services:
         soft: -1
         hard: -1
     extra_hosts:
-      - "node-1:10.20.30.2"
-      - "node-2:10.20.30.3"
-      - "node-3:10.20.30.4"
-  
+      - "elasticsearch-1:10.20.30.2"
+      - "elasticsearch-2:10.20.30.3"
+      - "elasticsearch-3:10.20.30.4"
+
   #ElasticSearch node 1 server
   elasticsearch2:
     tty: true
@@ -43,9 +43,9 @@ services:
         ELK_VERSION: $ELK_VERSION
     volumes:
       - ./elasticsearch/config/elasticsearch_node_1.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
-    ports:
-      - "9201:9201"
-      - "9301:9301"
+    # ports:
+    #   - "9200:9200"
+    #   - "9300:9300"
     environment:
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
       bootstrap.memory_lock: "true"
@@ -59,9 +59,9 @@ services:
         soft: -1
         hard: -1
     extra_hosts:
-      - "node-1:10.20.30.2"
-      - "node-2:10.20.30.3"
-      - "node-3:10.20.30.4"
+      - "elasticsearch-1:10.20.30.2"
+      - "elasticsearch-2:10.20.30.3"
+      - "elasticsearch-3:10.20.30.4"
 
   #ElasticSearch node 2 server
   elasticsearch3:
@@ -72,9 +72,9 @@ services:
         ELK_VERSION: $ELK_VERSION
     volumes:
       - ./elasticsearch/config/elasticsearch_node_2.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
-    ports:
-      - "9202:9202"
-      - "9302:9302"
+    # ports:
+    #   - "9200:9200"
+    #   - "9300:9300"
     environment:
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
       bootstrap.memory_lock: "true"
@@ -88,9 +88,9 @@ services:
         soft: -1
         hard: -1
     extra_hosts:
-      - "node-1:10.20.30.2"
-      - "node-2:10.20.30.3"
-      - "node-3:10.20.30.4"
+      - "elasticsearch-1:10.20.30.2"
+      - "elasticsearch-2:10.20.30.3"
+      - "elasticsearch-3:10.20.30.4"
 
   kibana:
     image: 'docker.elastic.co/kibana/kibana:6.3.2'
@@ -120,7 +120,7 @@ networks:
       config:
         - subnet: 10.20.30.0/24
           gateway: 10.20.30.1
-          # aux_addresses: 
+          # aux_addresses:
           #   elasticsearch-master: 10.20.30.2
           #   elasticsearch-node-1: 10.20.30.3
           #   elasticsearch-node-2: 10.20.30.4
