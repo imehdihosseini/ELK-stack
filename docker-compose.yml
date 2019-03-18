@@ -19,98 +19,99 @@ services:
     container_name: elasticsearch
     networks:
       elk:
-          ipv4_address: 10.20.30.2
+        ipv4_address: 10.20.30.2
     stdin_open: true
-    # links:
-    #   - elasticsearch2
-    #   - elasticsearch3
+    links:
+      - elasticsearch2
+      - elasticsearch3
+      - kibana
     ulimits:
       memlock:
         soft: -1
         hard: -1
     extra_hosts:
-      - "elasticsearch:10.20.30.2"
-      # - "elasticsearch2:10.20.30.3"
-      # - "elasticsearch3:10.20.30.4"
+      - "node-1:10.20.30.2"
+      - "node-2:10.20.30.3"
+      - "node-3:10.20.30.4"
   
-  # ElasticSearch node 1 server
-  # elasticsearch2:
-  #   tty: true
-  #   build:
-  #     context: elasticsearch/
-  #     args:
-  #       ELK_VERSION: $ELK_VERSION
-  #   volumes:
-  #     - ./elasticsearch/config/elasticsearch_node_1.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
-  #   ports:
-  #     - "9201:9200"
-  #     - "9301:9300"
-  #   environment:
-  #     ES_JAVA_OPTS: "-Xmx256m -Xms256m"
-  #     bootstrap.memory_lock: "true"
-  #   container_name: elasticsearch2
-  #   networks:
-  #     elk:
-  #         ipv4_address: 10.20.30.3
-  #   stdin_open: true
-  #   ulimits:
-  #     memlock:
-  #       soft: -1
-  #       hard: -1
-  #   extra_hosts:
-  #     - "elasticsearch:10.20.30.2"
-  #     - "elasticsearch2:10.20.30.3"
-  #     - "elasticsearch3:10.20.30.4"
+  #ElasticSearch node 1 server
+  elasticsearch2:
+    tty: true
+    build:
+      context: elasticsearch/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    volumes:
+      - ./elasticsearch/config/elasticsearch_node_1.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+    ports:
+      - "9201:9201"
+      - "9301:9301"
+    environment:
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+      bootstrap.memory_lock: "true"
+    container_name: elasticsearch2
+    networks:
+      elk:
+        ipv4_address: 10.20.30.3
+    stdin_open: true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    extra_hosts:
+      - "node-1:10.20.30.2"
+      - "node-2:10.20.30.3"
+      - "node-3:10.20.30.4"
 
-  # ElasticSearch node 2 server
-  # elasticsearch3:
-  #   tty: true
-  #   build:
-  #     context: elasticsearch/
-  #     args:
-  #       ELK_VERSION: $ELK_VERSION
-  #   volumes:
-  #     - ./elasticsearch/config/elasticsearch_node_2.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
-  #   ports:
-  #     - "9202:9200"
-  #     - "9302:9300"
-  #   environment:
-  #     ES_JAVA_OPTS: "-Xmx256m -Xms256m"
-  #     bootstrap.memory_lock: "true"
-  #   container_name: elasticsearch3
-  #   networks:
-  #     elk:
-  #         ipv4_address: 10.20.30.4
-  #   stdin_open: true
-  #   ulimits:
-  #     memlock:
-  #       soft: -1
-  #       hard: -1
-  #   extra_hosts:
-  #     - "elasticsearch:10.20.30.2"
-  #     - "elasticsearch2:10.20.30.3"
-  #     - "elasticsearch3:10.20.30.4"
+  #ElasticSearch node 2 server
+  elasticsearch3:
+    tty: true
+    build:
+      context: elasticsearch/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    volumes:
+      - ./elasticsearch/config/elasticsearch_node_2.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+    ports:
+      - "9202:9202"
+      - "9302:9302"
+    environment:
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+      bootstrap.memory_lock: "true"
+    container_name: elasticsearch3
+    networks:
+      elk:
+        ipv4_address: 10.20.30.4
+    stdin_open: true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    extra_hosts:
+      - "node-1:10.20.30.2"
+      - "node-2:10.20.30.3"
+      - "node-3:10.20.30.4"
 
   kibana:
-      image: 'docker.elastic.co/kibana/kibana:6.3.2'
-      container_name: kibana
-      environment:
-        SERVER_NAME: kibana.local
-        ELASTICSEARCH_URL: http://elasticsearch:9200
+    image: 'docker.elastic.co/kibana/kibana:6.3.2'
+    container_name: kibana
+    environment:
+      SERVER_NAME: kibana.local
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+    ports:
+      - '5601:5601'
+    networks:
+      elk:
+        ipv4_address: 10.20.30.5
+
+  headPlugin:
+      image: 'mobz/elasticsearch-head:5'
+      container_name: head
       ports:
-        - '5601:5601'
+        - '9100:9100'
       networks:
         elk:
-          ipv4_address: 10.20.30.5
-
-  # headPlugin:
-  #     image: 'mobz/elasticsearch-head:5'
-  #     container_name: head
-  #     ports:
-  #       - '9100:9100'
-  #     networks:
-  #       elk:
-  #         ipv4_address: 10.20.30.6
+          ipv4_address: 10.20.30.6
 
 networks:
   elk:

@@ -4,18 +4,18 @@ node.master: true
 
 node.data: true
 
+node.name: "node-1"
+
 http.port: 9200
 
-discovery.zen.ping.unicast.hosts: "elasticsearch"
+discovery.zen.ping.unicast.hosts: ["node-1:9300", "node-2:9301", "node-3:9302"]
 
-network.publish_host: elasticsearch
+network.publish_host: node-1
 
-network.bind_host: 0.0.0.0
+network.bind_host: "0.0.0.0"
 
 http.cors.enabled: true
 
 http.cors.allow-origin: "*"
 
-discovery.zen.minimum_master_nodes: 1
-
-bootstrap.memory_lock: true
+discovery.zen.minimum_master_nodes: 2
