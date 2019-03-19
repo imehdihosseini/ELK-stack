@@ -1,7 +1,7 @@
 version: '2'
 
 services:
-  # ElasticSearch master server
+  # ElasticSearch node 1 server
   elasticsearch:
     tty: true
     build:
@@ -9,7 +9,8 @@ services:
       args:
         ELK_VERSION: $ELK_VERSION
     volumes:
-      - ./elasticsearch/config/elasticsearch_master.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - ./elasticsearch/config/node_1.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - ./data/$NODE_1_NAME:/usr/share/elasticsearch/data:rw
     ports:
       - "9200:9200"
       - "9300:9300"
@@ -19,7 +20,7 @@ services:
     container_name: elasticsearch
     networks:
       elk:
-        ipv4_address: 10.20.30.2
+        ipv4_address: $NODE_1_IP
     stdin_open: true
     links:
       - elasticsearch2
@@ -30,12 +31,12 @@ services:
         soft: -1
         hard: -1
     extra_hosts:
-      - "elasticsearch-1:10.20.30.2"
-      - "elasticsearch-2:10.20.30.3"
-      - "elasticsearch-3:10.20.30.4"
-      - "kibana:10.20.30.5"
+      - "${NODE_1_NAME}:${NODE_1_IP}"
+      - "${NODE_2_NAME}:${NODE_2_IP}"
+      - "${NODE_3_NAME}:${NODE_3_IP}"
+      - "${KIBANA_NAME}:${KIBANA_IP}"
 
-  #ElasticSearch node 1 server
+  #ElasticSearch node 2 server
   elasticsearch2:
     tty: true
     build:
@@ -43,29 +44,27 @@ services:
       args:
         ELK_VERSION: $ELK_VERSION
     volumes:
-      - ./elasticsearch/config/elasticsearch_node_1.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
-    # ports:
-    #   - "9200:9200"
-    #   - "9300:9300"
+      - ./elasticsearch/config/node_2.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - ./data/$NODE_2_NAME:/usr/share/elasticsearch/data:rw
     environment:
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
       bootstrap.memory_lock: "true"
     container_name: elasticsearch2
     networks:
       elk:
-        ipv4_address: 10.20.30.3
+        ipv4_address: $NODE_2_IP
     stdin_open: true
     ulimits:
       memlock:
         soft: -1
         hard: -1
     extra_hosts:
-      - "elasticsearch-1:10.20.30.2"
-      - "elasticsearch-2:10.20.30.3"
-      - "elasticsearch-3:10.20.30.4"
-      - "kibana:10.20.30.5"
+      - "${NODE_1_NAME}:${NODE_1_IP}"
+      - "${NODE_2_NAME}:${NODE_2_IP}"
+      - "${NODE_3_NAME}:${NODE_3_IP}"
+      - "${KIBANA_NAME}:${KIBANA_IP}"
 
-  #ElasticSearch node 2 server
+  #ElasticSearch node 3 server
   elasticsearch3:
     tty: true
     build:
@@ -73,27 +72,25 @@ services:
       args:
         ELK_VERSION: $ELK_VERSION
     volumes:
-      - ./elasticsearch/config/elasticsearch_node_2.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
-    # ports:
-    #   - "9200:9200"
-    #   - "9300:9300"
+      - ./elasticsearch/config/node_3.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - ./data/$NODE_3_NAME:/usr/share/elasticsearch/data:rw
     environment:
       ES_JAVA_OPTS: "-Xmx256m -Xms256m"
       bootstrap.memory_lock: "true"
     container_name: elasticsearch3
     networks:
       elk:
-        ipv4_address: 10.20.30.4
+        ipv4_address: $NODE_3_IP
     stdin_open: true
     ulimits:
       memlock:
         soft: -1
         hard: -1
     extra_hosts:
-      - "elasticsearch-1:10.20.30.2"
-      - "elasticsearch-2:10.20.30.3"
-      - "elasticsearch-3:10.20.30.4"
-      - "kibana:10.20.30.5"
+      - "${NODE_1_NAME}:${NODE_1_IP}"
+      - "${NODE_2_NAME}:${NODE_2_IP}"
+      - "${NODE_3_NAME}:${NODE_3_IP}"
+      - "${KIBANA_NAME}:${KIBANA_IP}"
 
   kibana:
     image: 'docker.elastic.co/kibana/kibana:6.3.2'
@@ -105,12 +102,12 @@ services:
       - '5601:5601'
     networks:
       elk:
-        ipv4_address: 10.20.30.5
+        ipv4_address: $KIBANA_IP
     extra_hosts:
-      - "elasticsearch-1:10.20.30.2"
-      - "elasticsearch-2:10.20.30.3"
-      - "elasticsearch-3:10.20.30.4"
-      - "kibana:10.20.30.5"
+      - "${NODE_1_NAME}:${NODE_1_IP}"
+      - "${NODE_2_NAME}:${NODE_2_IP}"
+      - "${NODE_3_NAME}:${NODE_3_IP}"
+      - "${KIBANA_NAME}:${KIBANA_IP}"
 
   headPlugin:
       image: 'mobz/elasticsearch-head:5'
@@ -119,21 +116,17 @@ services:
         - '9100:9100'
       networks:
         elk:
-          ipv4_address: 10.20.30.6
+          ipv4_address: $ELASTIC_HEAD_IP
       extra_hosts:
-      - "elasticsearch-1:10.20.30.2"
-      - "elasticsearch-2:10.20.30.3"
-      - "elasticsearch-3:10.20.30.4"
-      - "kibana:10.20.30.5"
+      - "${NODE_1_NAME}:${NODE_1_IP}"
+      - "${NODE_2_NAME}:${NODE_2_IP}"
+      - "${NODE_3_NAME}:${NODE_3_IP}"
+      - "${KIBANA_NAME}:${KIBANA_IP}"
 
 networks:
   elk:
     driver: bridge
     ipam:
       config:
-        - subnet: 10.20.30.0/24
-          gateway: 10.20.30.1
-          # aux_addresses:
-          #   elasticsearch-master: 10.20.30.2
-          #   elasticsearch-node-1: 10.20.30.3
-          #   elasticsearch-node-2: 10.20.30.4
+        - subnet: $SUB_NET
+          gateway: $GATEWAY
